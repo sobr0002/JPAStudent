@@ -1,0 +1,58 @@
+services:
+
+  database:
+    image: mysql:8.0 # Henter specifik mysql-image fra Docker Hub, ingen utilsigtede opdateringer
+    container_name: student-database # Fast container navn for nem identifikation
+    restart: unless-stopped # Genstart ved crash eller Docker daemon restart
+
+    environment:
+
+      # Login-oplysninger til MySQL-DB i Docker-containeren
+      MYSQL_DATABASE: ${MYSQL_DATABASE} # Opretter automatisk database ved foerste start
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Root password til MySQL admin bruger
+
+
+
+      MYSQL_USER: ${MYSQL_USER} # Opretter ikke-root bruger til applikationen
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD} # Password til applikationsbrugeren
+
+    # Docker volume lever uden for containeren i Docker
+    volumes:
+        - mysql-data:/var/lib/mysql # Persisterer data i named volume "mysql-data", data mistes ikke ved container sletning
+
+    ports:
+      - "127.0.0.1:3307:3306" # Binder kun til localhost for sikkerhed, undgår ekstern adgang
+      # host-ip -> localhost : host-port : containerport
+
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+
+    build: # Bygger image ud fra Dockerfile
+      context: . # Fortaeller at Dockerfile ligger i root-mappe
+      dockerfile: Dockerfile
+
+    container_name: student-backend # Fast container navn for nem identifikation
+
+    restart: unless-stopped
+
+    depends_on:
+      database:
+        condition: service_healthy # Sikrer database er klar foer backend starter
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+
+    ports:
+        - "8080:8080"
+
+# Docker compose kraever at named-volumes deklareres eksplicit
+volumes:
+  mysql-data:
