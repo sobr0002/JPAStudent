@@ -1,0 +1,12 @@
+
+# Post student
+curl -X POST http://localhost:8080/student \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "Torben",
+        "bornDate": "1990-05-12"
+      }'
+
+
+# Hent student med id
+curl -X GET http://localhost:8080/student/id
