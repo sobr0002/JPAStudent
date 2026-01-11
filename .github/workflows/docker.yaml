@@ -16,15 +16,18 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout source code
+      - name: Checkout source code # Klonet repository til GitHub-runneren
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.x.x https://github.com/actions/checkout/releases
 
+      # Docker logger ind i GHCR med GITHUB_TOKEN (auto-generated token) og mit brugernavn
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      # Bygger docker image med (image-navn) -> tag ghcr.io/<owner>/student-backend:latest
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/${{ github.repository_owner }}/student-backend:latest .
+      # . Bygger image ud fra Dockerfile i root-mappen
 
       - name: Push Docker image
         run: |
