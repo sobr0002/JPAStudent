@@ -1,5 +1,6 @@
 name: Java CI (Build & Test)
 
+# Workflow triggers
 on:
     pull_request:
         branches: [ main ]
@@ -8,20 +9,24 @@ on:
 
     workflow_dispatch:
 
+# Jobbet koerer på en Ubuntu-latest runner VM
 jobs:
   build-test:
     runs-on: ubuntu-latest
 
+    # Downloader kildekode til runneren
     steps:
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4.x.x https://github.com/actions/checkout/releases
 
+        # Installerer Java Development Kit version 21
       - name: Set up JDK 21
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 #v4.x.x https://github.com/actions/setup-java/releases
         with:
             java-version: '21'
             distribution: temurin
 
+      # Cacher Maven dependencies
       - name: Cache Maven Dependencies
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4.x.x https://github.com/actions/cache/releases
         with:
@@ -29,6 +34,8 @@ jobs:
           # Unik cache-nøgle, runneren kører Linux-styresystem, hashfiles læser pom.xml og laver hash
           key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
 
+      # Bygger og tester projektet med Maven
       - name: Build & test with Maven
         run: mvn verify
 
+# validate: at der er en pom.xml + den er gyldig, vaerdier i app.properties
