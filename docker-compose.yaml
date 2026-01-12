@@ -12,7 +12,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Root password til MySQL admin bruger
 
 
-
       MYSQL_USER: ${MYSQL_USER} # Opretter ikke-root bruger til applikationen
       MYSQL_PASSWORD: ${MYSQL_PASSWORD} # Password til applikationsbrugeren
 
